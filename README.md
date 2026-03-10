@@ -1,3 +1,20 @@
+Getting started — 3D Restaurant (R3F)
+
+Install dependencies (use `npm` if `bun` failed):
+
+```bash
+npm install
+npm run dev
+```
+
+Notes
+- Place a GLTF/GLB model at `public/models/restaurant.glb` to replace the placeholder box.
+- The 3D scene lives in `components/Scene.tsx` and is rendered by `app/page.tsx`.
+- For advanced visuals add `@react-three/postprocessing` effects and baked environment maps.
+
+If you want, I can:
+- Integrate a specific GLTF you provide or fetch a sample from a URL.
+- Add postprocessing (bloom, DOF) and UI overlays for interactions.
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
