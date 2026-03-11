@@ -2,11 +2,9 @@
 
 import React, { Suspense, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
-import { OrbitControls, Environment, Html } from "@react-three/drei";
+import { OrbitControls, Environment, Html, useGLTF } from "@react-three/drei";
 import { useSpring, a } from "@react-spring/three";
 import { Vector3, Box3 } from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { EffectComposer, Bloom, DepthOfField, Vignette } from "@react-three/postprocessing";
 import HotspotPanel from "./HotspotPanel";
 import type { Mesh } from "three";
@@ -25,14 +23,8 @@ function RotatingBox() {
 }
 
 function Model({ src = "/restaurant.glb" }: { src?: string }) {
-  // useLoader with DRACO support so compressed models load if present
-  const gltf = useLoader(GLTFLoader, src, (loader) => {
-    const draco = new DRACOLoader();
-    // Put draco decoder files in public/draco/ or change path accordingly
-    draco.setDecoderPath("/draco/");
-    // @ts-ignore
-    loader.setDRACOLoader(draco);
-  }) as any;
+  // useGLTF handles DRACO loading automatically when draco files are in public/
+  const gltf = useGLTF(src, "/draco/") as any;
 
   const [hovered, setHovered] = useState(false);
   const [active, setActive] = useState(false);
@@ -135,6 +127,7 @@ function SceneContents({ HOTSPOTS }: { HOTSPOTS: Array<any> }) {
   const lastLoggedRef = useRef(new Vector3().copy(camera.position));
   const loggingIntervalRef = useRef(0);
   const userInteractingRef = useRef(false);
+  const transitionRef = useRef<any | null>(null);
 
   // called by hotspots to move camera
   function moveCameraTo(cam: Vector3, lookAt: Vector3) {
@@ -242,7 +235,7 @@ function SceneContents({ HOTSPOTS }: { HOTSPOTS: Array<any> }) {
         dampingFactor={0.08}
         onStart={() => {
             // cancel any running camera transition when the user begins interacting
-            if (typeof transitionRef !== "undefined" && transitionRef.current) {
+            if (transitionRef.current) {
               transitionRef.current = null;
               console.log("OrbitControls onStart: cancelled transition");
             }
