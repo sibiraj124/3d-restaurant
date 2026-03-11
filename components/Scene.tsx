@@ -7,6 +7,7 @@ import { useSpring, a } from "@react-spring/three";
 import { Vector3, Box3 } from "three";
 import { EffectComposer, Bloom, DepthOfField, Vignette } from "@react-three/postprocessing";
 import HotspotPanel from "./HotspotPanel";
+import HotspotCard from "./HotspotCard";
 import type { Mesh } from "three";
 
 function RotatingBox() {
@@ -77,6 +78,8 @@ function Model({ src = "/restaurant.glb" }: { src?: string }) {
 }
 
 export default function Scene() {
+  const [activeHotspot, setActiveHotspot] = useState<any | null>(null);
+
   // hotspot definitions: position, label, camera target position and lookAt
   const HOTSPOTS = [
     {
@@ -108,15 +111,16 @@ export default function Scene() {
         <ambientLight intensity={0.4} />
         <directionalLight position={[5, 10, 5]} intensity={1} castShadow />
 
-        <SceneContents HOTSPOTS={HOTSPOTS} />
+        <SceneContents HOTSPOTS={HOTSPOTS} onHotspotClick={setActiveHotspot} />
       </Canvas>
 
       <HotspotPanel HOTSPOTS={HOTSPOTS} />
+      <HotspotCard hotspot={activeHotspot} onClose={() => setActiveHotspot(null)} />
     </div>
   );
 }
 
-function SceneContents({ HOTSPOTS }: { HOTSPOTS: Array<any> }) {
+function SceneContents({ HOTSPOTS, onHotspotClick }: { HOTSPOTS: Array<any>; onHotspotClick: (hp: any) => void }) {
   const controlsRef = useRef<any>(null);
   const { camera } = useThree();
 
@@ -152,6 +156,7 @@ function SceneContents({ HOTSPOTS }: { HOTSPOTS: Array<any> }) {
           onClick={(e) => {
             e.stopPropagation();
             moveCameraTo(hp.cam, hp.lookAt);
+            onHotspotClick(hp);
             console.log("Hotspot clicked:", hp.id, "-> move camera to", hp.cam.toArray());
           }}
         >
